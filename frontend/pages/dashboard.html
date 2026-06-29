@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RP Fitness Dashboard</title>
+  <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="/assets/images/rp-logo.png" alt="RP logo">
+        <div><strong>RP Fitness</strong><span>Student Portal</span></div>
+      </div>
+      <nav class="nav-links">
+        <a class="active" href="/pages/dashboard.html">Dashboard</a>
+        <a href="/pages/DailyHabits.html">Habits</a>
+        <button onclick="logout()">Logout</button>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <span class="eyebrow">Overview</span>
+          <h1>Dashboard</h1>
+          <p>Track healthy habits and access your student wellness tools.</p>
+        </div>
+      </header>
+      <section class="grid">
+        <article class="card action-card span-4">
+          <div><h2>Calorie Tracker</h2><p>Food logging and calorie planning are moving to the habit experience.</p></div>
+          <button class="secondary-button" disabled>Coming Soon</button>
+        </article>
+        <article class="card action-card span-4">
+          <div><h2>Workout Tracker</h2><p>Plan and review exercise sessions for your weekly routine.</p></div>
+          <button class="secondary-button" disabled>Coming Soon</button>
+        </article>
+        <article class="card action-card span-4">
+          <div><h2>Daily Goals</h2><p>Track your calorie goal and workout each day with monthly progress and rank.</p></div>
+          <a class="button-link" href="/pages/DailyHabits.html">Open Daily Goals</a>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script src="/src/app.js"></script>
+</body>
+</html>
