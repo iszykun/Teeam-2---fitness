@@ -506,6 +506,96 @@ p {
   accent-color: var(--green);
 }
 
+.form-stack.compact {
+  gap: 0.7rem;
+}
+
+.field-group {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field-group span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.field-grid,
+.helper-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.helper-box {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.recommendation-output,
+.bmi-output {
+  margin-top: 0.85rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: rgba(8, 12, 10, 0.9);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.recommendation-output strong,
+.bmi-output strong {
+  color: var(--green);
+  font-size: 1.25rem;
+}
+
+.calorie-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.summary-pill {
+  padding: 0.9rem;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #0d140f;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.summary-pill strong {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.summary-pill span {
+  font-weight: 900;
+}
+
+.summary-pill.reached {
+  border-color: rgba(25, 195, 125, 0.35);
+  background: rgba(25, 195, 125, 0.14);
+}
+
+.summary-pill.over {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.summary-pill.under {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.14);
+}
+
+.summary-pill.no-goal {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
 .tracker-calendar-card {
   margin-top: 1rem;
 }
@@ -537,6 +627,9 @@ p {
 .legend-dot.complete { background: var(--green); }
 .legend-dot.partial { background: var(--warning); }
 .legend-dot.empty { background: #33423a; }
+.legend-dot.green { background: var(--green); }
+.legend-dot.red { background: var(--danger); }
+.legend-dot.grey { background: #33423a; }
 
 .tracker-calendar {
   display: grid;
@@ -559,9 +652,20 @@ p {
   color: var(--green);
 }
 
-.day-cell.partial {
+.day-cell.partial,
+.day-cell.goal-missed {
   background: rgba(245, 158, 11, 0.18);
   color: #ffd58a;
+}
+
+.day-cell.green {
+  background: rgba(25, 195, 125, 0.2);
+  color: var(--green);
+}
+
+.day-cell.grey {
+  background: #0c130f;
+  color: var(--muted);
 }
 
 .day-cell.today {
@@ -608,6 +712,12 @@ p {
 
   .tracker-calendar {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .field-grid,
+  .helper-field-grid,
+  .calorie-summary {
+    grid-template-columns: 1fr;
   }
 
   .grid {

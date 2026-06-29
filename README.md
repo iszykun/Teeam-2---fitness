@@ -25,6 +25,11 @@ This project demonstrates modern DevOps practices including:
 * ✔️ Track daily habits through a checklist system
 * 📅 Monitor monthly progress
 * 💾 Automatic progress saving
+* 🎯 Set and edit daily calorie goals for any day
+* 📈 View daily calorie progress with goal, food eaten, and remaining calories
+* 🧮 Use a BMI calculator with age, gender, height, weight, and exercise level
+* 💡 Get a recommended daily calorie intake suggestion
+* 🗓️ See calendar status colors for calorie goal performance
 
 ### Habit Tracking Features
 
@@ -32,6 +37,13 @@ The Daily Habit Checklist allows users to track two habits daily:
 
 * Calorie Goal Completion
 * Fitness Workout Completion
+
+The Daily Goals experience now also supports:
+
+* Daily calorie goals saved to local storage
+* Daily calorie progress summary with remaining calories
+* Calendar day colors for calorie goal status
+* Food entries that feed into the daily calorie progress view
 
 Users can monitor their consistency through a ranking system:
 
@@ -41,6 +53,14 @@ Users can monitor their consistency through a ranking system:
 | 26% - 50%             | Bronze |
 | 51% - 75%             | Silver |
 | 76% - 100%            | Gold   |
+
+### Calendar Color Guide
+
+| Status | Meaning |
+| ------ | ------- |
+| Green | Goal reached |
+| Red | Over or under goal |
+| Grey | No goal set |
 
 ### Admin Features
 
@@ -176,6 +196,13 @@ Open your browser and navigate to:
 ```text
 http://localhost:3000/pages/login.html
 ```
+
+### 5. Use the New Features
+
+* Open the Dashboard and select the Calorie Tracker card to visit the new calorie page.
+* Use Daily Habits to set a daily calorie goal, save it, and review your progress.
+* Use the BMI calculator and recommended intake helper on the calorie tracker page.
+* Log meals to update your daily food calories and see them reflected in the daily progress summary.
 
 ---
 

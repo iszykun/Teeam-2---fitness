@@ -33,7 +33,7 @@ app.use('/api/admin', adminRoutes);
 app.use(express.static(frontendRoot));
 app.get('/', (req, res) => res.redirect('/pages/login.html'));
 
-['login.html', 'signup.html', 'dashboard.html', 'admin.html', 'DailyHabits.html'].forEach((page) => {
+['login.html', 'signup.html', 'dashboard.html', 'admin.html', 'DailyHabits.html', 'CalorieTracker.html'].forEach((page) => {
   app.get(`/${page}`, (req, res) => res.sendFile(path.join(pagesRoot, page)));
 });
 
