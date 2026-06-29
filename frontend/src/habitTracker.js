@@ -536,12 +536,12 @@ function renderCalorieTrackerPage() {
       <div>
         <p class="eyebrow">Calorie tracker</p>
         <h2>Manage your BMI, calories, and daily targets</h2>
-        <p>Use the helper to find your recommended intake and log meals for the day.</p>
+        <p>Use BMI insights and food logging to stay on track.</p>
       </div>
     </section>
 
     <section class="grid">
-      <article class="card span-6">
+      <article class="card span-12">
         <p class="eyebrow">BMI calculator</p>
         <h3>Check your current body mass index</h3>
         <form id="bmiForm" class="form-stack compact">
@@ -575,42 +575,6 @@ function renderCalorieTrackerPage() {
           <button type="submit">Calculate BMI</button>
         </form>
         <div class="bmi-output" id="bmiOutput">Enter your height and weight to calculate your BMI.</div>
-      </article>
-      <article class="card span-6">
-        <p class="eyebrow">Recommended daily intake</p>
-        <h3>Use the helper for a smart goal</h3>
-        <div class="helper-field-grid">
-          <label class="field-group">
-            <span>Age</span>
-            <input type="number" id="trackerAge" min="1" value="20">
-          </label>
-          <label class="field-group">
-            <span>Gender</span>
-            <select id="trackerGender">
-              <option value="female">Female</option>
-              <option value="male">Male</option>
-            </select>
-          </label>
-          <label class="field-group">
-            <span>Height (cm)</span>
-            <input type="number" id="trackerHeight" min="1" value="165">
-          </label>
-          <label class="field-group">
-            <span>Weight (kg)</span>
-            <input type="number" id="trackerWeight" min="1" value="60">
-          </label>
-          <label class="field-group">
-            <span>Exercise level</span>
-            <select id="trackerExerciseLevel">
-              ${EXERCISE_LEVELS.map((level) => `<option value="${level}" ${level === 'Exercise regularly' ? 'selected' : ''}>${level}</option>`).join('')}
-            </select>
-          </label>
-        </div>
-        <div class="row-actions">
-          <button class="secondary-button" type="button" id="trackerRecommendationButton">Calculate recommendation</button>
-          <button type="button" id="trackerApplyButton" disabled>Use as goal</button>
-        </div>
-        <div class="recommendation-output" id="trackerRecommendationOutput">Enter your details to see a recommendation.</div>
       </article>
     </section>
 
@@ -674,37 +638,6 @@ function renderCalorieTrackerPage() {
       else if (Number(bmi) < 30) description = 'Overweight';
       else description = 'Obese';
       bmiOutput.innerHTML = `<strong>${bmi}</strong><span>${description}</span>`;
-    });
-  }
-
-  const trackerRecommendationButton = root.querySelector('#trackerRecommendationButton');
-  const trackerApplyButton = root.querySelector('#trackerApplyButton');
-  const trackerRecommendationOutput = root.querySelector('#trackerRecommendationOutput');
-  if (trackerRecommendationButton && trackerRecommendationOutput) {
-    trackerRecommendationButton.addEventListener('click', () => {
-      const recommendedCalories = calculateRecommendedCalories({
-        age: root.querySelector('#trackerAge').value,
-        gender: root.querySelector('#trackerGender').value,
-        height: root.querySelector('#trackerHeight').value,
-        weight: root.querySelector('#trackerWeight').value,
-        exerciseLevel: root.querySelector('#trackerExerciseLevel').value
-      });
-
-      if (recommendedCalories) {
-        trackerRecommendationOutput.innerHTML = `<strong>${recommendedCalories} kcal</strong><span>Recommended daily calorie intake based on your details.</span>`;
-        if (trackerApplyButton) trackerApplyButton.disabled = false;
-      } else {
-        trackerRecommendationOutput.innerHTML = '<span>Enter valid details to receive a recommendation.</span>';
-        if (trackerApplyButton) trackerApplyButton.disabled = true;
-      }
-    });
-  }
-
-  if (trackerApplyButton && trackerRecommendationOutput) {
-    trackerApplyButton.addEventListener('click', () => {
-      const recommendationValue = trackerRecommendationOutput.querySelector('strong')?.textContent?.replace(/\D/g, '');
-      const goalInput = document.querySelector('#calorieGoalInput');
-      if (recommendationValue && goalInput) goalInput.value = recommendationValue;
     });
   }
 
