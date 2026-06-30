@@ -75,6 +75,12 @@ Users can monitor their consistency through a ranking system:
 * 🗑️ Delete user accounts
 * 📊 Monitor user activity metrics
 
+### Workout Tracker Feature (vBanal)
+
+* Add workout sessions with dynamic fields for different workout types.
+* Save, edit, and delete workouts from a dedicated tracker page.
+* View workout history with filtering and local persistence for easy progress tracking.
+
 ---
 
 ## 🛠️ Technologies Used

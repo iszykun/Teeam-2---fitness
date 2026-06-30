@@ -26,8 +26,17 @@ app.use('/api/facilities', facilitiesRoutes);
 app.use(express.static(frontendRoot));
 app.get('/', (req, res) => res.sendFile(path.join(pagesRoot, 'gymFinder.html')));
 
-app.get('/gymFinder.html', (req, res) => res.sendFile(path.join(pagesRoot, 'gymFinder.html')));
+['login.html', 'signup.html', 'dashboard.html', 'admin.html', 'DailyHabits.html', 'CalorieTracker.html', 'WorkoutTracker.html'].forEach((page) => {
+  app.get(`/${page}`, (req, res) => res.sendFile(path.join(pagesRoot, page)));
+});
 
+app.post('/signup', authController.signup);
+app.post('/login', authController.login);
+app.get('/check-session', authController.checkSession);
+app.get('/logout', authController.logout);
+app.get('/get-users', adminController.getUsers);
+app.post('/delete-user', adminController.deleteUser);
+app.post('/user-overview', adminController.userOverview);
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
 });
