@@ -92,7 +92,8 @@ button:disabled {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   min-height: 44px;
   border: 1px solid var(--line);
@@ -103,12 +104,18 @@ select {
   outline: none;
 }
 
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
 input::placeholder {
   color: #748079;
 }
 
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   border-color: var(--green);
   box-shadow: 0 0 0 3px rgba(25, 195, 125, 0.14);
 }
@@ -195,7 +202,7 @@ p {
 }
 
 .form-message.error {
-  color: #ff8a8a;
+  color: var(--warning);
 }
 
 .form-message.success {
@@ -380,12 +387,12 @@ p {
 }
 
 .danger-button {
-  background: var(--danger);
-  color: white;
+  background: var(--warning);
+  color: #04100a;
 }
 
 .danger-button:hover {
-  background: #f87171;
+  background: #fbbf24;
 }
 
 .overview-list {
@@ -600,6 +607,41 @@ p {
   margin-top: 1rem;
 }
 
+.history-list {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.history-card {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #0d140f;
+}
+
+.history-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.history-card strong {
+  color: var(--green);
+}
+
+.history-card p {
+  margin-bottom: 0.35rem;
+}
+
+.history-details {
+  margin: 0.65rem 0 0.8rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
 .calendar-header {
   display: flex;
   justify-content: space-between;
@@ -628,7 +670,7 @@ p {
 .legend-dot.partial { background: var(--warning); }
 .legend-dot.empty { background: #33423a; }
 .legend-dot.green { background: var(--green); }
-.legend-dot.red { background: var(--danger); }
+.legend-dot.red { background: var(--warning); }
 .legend-dot.grey { background: #33423a; }
 
 .tracker-calendar {
