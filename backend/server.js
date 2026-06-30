@@ -3,7 +3,12 @@ const path = require('path');
 const session = require('express-session');
 const cors = require('cors');
 
-const facilitiesRoutes = require('./routes/facilities');
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const authController = require('./controllers/authController');
+const adminController = require('./controllers/adminController');
+const { requireSession } = require('./middleware/helpers');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,10 +26,12 @@ app.use(session({
   cookie: { httpOnly: true, sameSite: 'lax', maxAge: 1000 * 60 * 60 * 4 }
 }));
 
-app.use('/api/facilities', facilitiesRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use(express.static(frontendRoot));
-app.get('/', (req, res) => res.sendFile(path.join(pagesRoot, 'gymFinder.html')));
+app.get('/', (req, res) => res.redirect('/pages/login.html'));
 
 ['login.html', 'signup.html', 'dashboard.html', 'admin.html', 'DailyHabits.html', 'CalorieTracker.html', 'WorkoutTracker.html'].forEach((page) => {
   app.get(`/${page}`, (req, res) => res.sendFile(path.join(pagesRoot, page)));
@@ -37,6 +44,7 @@ app.get('/logout', authController.logout);
 app.get('/get-users', adminController.getUsers);
 app.post('/delete-user', adminController.deleteUser);
 app.post('/user-overview', adminController.userOverview);
+
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
 });
@@ -47,5 +55,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`RP Fitness running at http://localhost:${PORT}/`);
+  console.log(`RP Fitness running at http://localhost:${PORT}/pages/login.html`);
 });
