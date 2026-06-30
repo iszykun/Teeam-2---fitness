@@ -1,0 +1,222 @@
+[
+  {
+    "id": 1,
+    "name": "ActiveSG Centre @ Jurong East",
+    "address": "1 Jurong West Central 2, Singapore 638799",
+    "postal_code": "638799",
+    "lat": 1.3426,
+    "lng": 103.7618,
+    "type": "gym",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 2,
+    "name": "Jalan Besar Stadium",
+    "address": "Jalan Besar, Singapore 207606",
+    "postal_code": "207606",
+    "lat": 1.3103,
+    "lng": 103.8704,
+    "type": "track",
+    "public": false,
+    "fee": "paid"
+  },
+  {
+    "id": 3,
+    "name": "Toa Payoh Stadium",
+    "address": "Lorong 6 Toa Payoh, Singapore 310006",
+    "postal_code": "310006",
+    "lat": 1.3326,
+    "lng": 103.8617,
+    "type": "track",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 4,
+    "name": "Bukit Batok ActiveSG Centre",
+    "address": "510 Bukit Batok Street 52, Singapore 659495",
+    "postal_code": "659495",
+    "lat": 1.3476,
+    "lng": 103.7479,
+    "type": "gym",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 5,
+    "name": "Clementi Stadium",
+    "address": "Clementi Avenue 6, Singapore 129588",
+    "postal_code": "129588",
+    "lat": 1.3347,
+    "lng": 103.7656,
+    "type": "track",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 6,
+    "name": "Hougang Stadium",
+    "address": "Hougang Avenue 10, Singapore 538766",
+    "postal_code": "538766",
+    "lat": 1.3722,
+    "lng": 103.8859,
+    "type": "track",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 7,
+    "name": "Bishan Park Running Track",
+    "address": "Bishan Park, Singapore 579833",
+    "postal_code": "579833",
+    "lat": 1.3522,
+    "lng": 103.8496,
+    "type": "track",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 8,
+    "name": "Marine Parade ActiveSG Centre",
+    "address": "Marine Parade Community Club, Singapore 449408",
+    "postal_code": "449408",
+    "lat": 1.3003,
+    "lng": 103.8659,
+    "type": "gym",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 9,
+    "name": "East Coast Park - Fort Road",
+    "address": "East Coast Park, Singapore 449876",
+    "postal_code": "449876",
+    "lat": 1.2966,
+    "lng": 103.9558,
+    "type": "track",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 10,
+    "name": "Bedok Stadium",
+    "address": "Bedok South Road, Singapore 469350",
+    "postal_code": "469350",
+    "lat": 1.3252,
+    "lng": 103.9401,
+    "type": "track",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 11,
+    "name": "Pasir Ris ActiveSG Centre",
+    "address": "230 Pasir Ris Street 21, Singapore 510230",
+    "postal_code": "510230",
+    "lat": 1.3776,
+    "lng": 103.9759,
+    "type": "gym",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 12,
+    "name": "Serangoon Stadium",
+    "address": "Serangoon Avenue 1, Singapore 555854",
+    "postal_code": "555854",
+    "lat": 1.3704,
+    "lng": 103.8725,
+    "type": "track",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 13,
+    "name": "Nee Soon Grand Stand",
+    "address": "Yio Chu Kang Road, Singapore 555748",
+    "postal_code": "555748",
+    "lat": 1.3765,
+    "lng": 103.8324,
+    "type": "track",
+    "public": false,
+    "fee": "paid"
+  },
+  {
+    "id": 14,
+    "name": "Orchard ActiveSG Centre",
+    "address": "181 Orchard Road, Singapore 238801",
+    "postal_code": "238801",
+    "lat": 1.3041,
+    "lng": 103.8338,
+    "type": "gym",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 15,
+    "name": "Yishun Stadium",
+    "address": "Yishun Avenue 4, Singapore 768095",
+    "postal_code": "768095",
+    "lat": 1.4279,
+    "lng": 103.8355,
+    "type": "track",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 16,
+    "name": "Tampines Stadium",
+    "address": "Tampines Avenue 9, Singapore 529153",
+    "postal_code": "529153",
+    "lat": 1.3533,
+    "lng": 103.9463,
+    "type": "track",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 17,
+    "name": "Woodlands Stadium",
+    "address": "Woodlands Avenue 7, Singapore 738645",
+    "postal_code": "738645",
+    "lat": 1.4366,
+    "lng": 103.8239,
+    "type": "track",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 18,
+    "name": "Changi Gym",
+    "address": "40 Changi Road, Singapore 419737",
+    "postal_code": "419737",
+    "lat": 1.3233,
+    "lng": 103.9725,
+    "type": "gym",
+    "public": true,
+    "fee": "free"
+  },
+  {
+    "id": 19,
+    "name": "Kallang Stadium - Private Gym",
+    "address": "10 Stadium Lane, Singapore 397698",
+    "postal_code": "397698",
+    "lat": 1.3051,
+    "lng": 103.8759,
+    "type": "gym",
+    "public": false,
+    "fee": "paid"
+  },
+  {
+    "id": 20,
+    "name": "Sentosa Running Trail",
+    "address": "Sentosa Island, Singapore 099891",
+    "postal_code": "099891",
+    "lat": 1.2495,
+    "lng": 103.8303,
+    "type": "track",
+    "public": true,
+    "fee": "free"
+  }
+]

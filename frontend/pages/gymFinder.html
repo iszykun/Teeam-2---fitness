@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gym & Track Finder - RP Fitness</title>
+  <link rel="stylesheet" href="/styles/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <style>
+    #gymFinderMap {
+      width: 100%;
+      height: 450px;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--line);
+    }
+
+    .search-section {
+      background: rgba(16, 23, 19, 0.95);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.16);
+    }
+
+    .search-form {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 140px;
+      gap: 1rem;
+      align-items: flex-end;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .form-group label {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .search-message {
+      min-height: 1.35rem;
+      margin-top: 0.5rem;
+      font-weight: 800;
+      font-size: 0.92rem;
+    }
+
+    .search-message.error {
+      color: #ff8a8a;
+    }
+
+    .search-message.success {
+      color: var(--green);
+    }
+
+    .results-summary {
+      margin-top: 1rem;
+      padding: 0.8rem;
+      background: rgba(25, 195, 125, 0.1);
+      border-left: 3px solid var(--green);
+      border-radius: 4px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 1.5rem;
+    }
+
+    .facility-card {
+      background: rgba(16, 23, 19, 0.95);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.16);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .facility-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--green);
+    }
+
+    .facility-type {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      padding: 0.3rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+
+    .facility-type.gym {
+      background: rgba(25, 195, 125, 0.2);
+      color: var(--green);
+    }
+
+    .facility-type.track {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+    }
+
+    .facility-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0.5rem 0;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .facility-detail {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin: 0.3rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .facility-distance {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .facility-fee {
+      display: inline-block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      margin-top: 0.5rem;
+    }
+
+    .facility-fee.free {
+      background: rgba(25, 195, 125, 0.15);
+      color: var(--green);
+    }
+
+    .facility-fee.paid {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ff8a8a;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      grid-column: 1 / -1;
+    }
+
+    .secondary-button {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--line);
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0.78rem 1rem;
+      border-radius: 8px;
+      min-height: 44px;
+      transition: all 0.15s ease;
+    }
+
+    .secondary-button:hover:not(:disabled) {
+      background: var(--surface-3);
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .secondary-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="/assets/images/rp-logo.png" alt="RP logo">
+        <div><strong>RP Fitness</strong><span>Student Portal</span></div>
+      </div>
+      <nav class="nav-links">
+        <a class="active" href="/">Gym Finder</a>
+        <button onclick="logout()">Logout</button>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <span class="eyebrow">Find Facilities</span>
+          <h1>Gym & Track Finder</h1>
+          <p>Search for public gyms and running tracks near your postal code in Singapore.</p>
+        </div>
+      </header>
+
+      <div class="search-section">
+        <form class="search-form" id="searchForm" onsubmit="handleSearch(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="postalCode">Singapore Postal Code</label>
+              <input
+                type="text"
+                id="postalCode"
+                placeholder="e.g., 738600"
+                maxlength="6"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="typeFilter">Facility Type</label>
+              <select id="typeFilter">
+                <option value="">Both Gym & Track</option>
+                <option value="gym">Gym Only</option>
+                <option value="track">Running Track Only</option>
+              </select>
+            </div>
+            <button type="submit" id="searchBtn">Search</button>
+          </div>
+          <div class="search-message" id="searchMessage"></div>
+        </form>
+      </div>
+
+      <div id="resultsContainer" style="display: none;">
+        <div class="results-summary" id="resultsSummary"></div>
+        
+        <div id="mapContainer">
+          <div id="gymFinderMap"></div>
+        </div>
+
+        <div class="results-grid" id="resultsGrid"></div>
+      </div>
+
+      <div id="emptyState" style="text-align: center; padding: 3rem; color: var(--muted);">
+        <p>Enter a postal code and click Search to find nearby facilities.</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="/src/app.js"></script>
+  <script src="/src/services/facilities.js"></script>
+  <script>
+    let map = null;
+    let markers = [];
+
+    function initMap() {
+      if (map) {
+        map.remove();
+        markers = [];
+      }
+
+      map = L.map('gymFinderMap').setView([1.3521, 103.8198], 11);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 18
+      }).addTo(map);
+    }
+
+    function clearMarkers() {
+      markers.forEach(marker => marker.remove());
+      markers = [];
+    }
+
+    function addMarker(facility) {
+      const marker = L.marker([facility.lat, facility.lng]).addTo(map);
+      const popup = `
+        <strong>${facility.name}</strong><br/>
+        Type: ${facility.type === 'gym' ? '🏋️ Gym' : '🏃 Track'}<br/>
+        Distance: ${facility.distance_km} km<br/>
+        Fee: ${facility.fee === 'free' ? '✓ Free' : 'Paid'}
+      `;
+      marker.bindPopup(popup);
+      markers.push(marker);
+    }
+
+    async function handleSearch(e) {
+      e.preventDefault();
+      const postalCode = $('postalCode').value.trim();
+      const typeFilter = $('typeFilter').value;
+      const searchBtn = $('searchBtn');
+      const searchMsg = $('searchMessage');
+      const resultsContainer = $('resultsContainer');
+      const emptyState = $('emptyState');
+      const resultsGrid = $('resultsGrid');
+      const resultsSummary = $('resultsSummary');
+
+      if (!postalCode) {
+        setMessage('searchMessage', 'Please enter a postal code', 'error');
+        return;
+      }
+
+      searchBtn.disabled = true;
+      searchMsg.textContent = 'Searching...';
+      searchMsg.className = 'search-message';
+
+      try {
+        const results = await window.facilitiesService.searchByPostalCode(postalCode, typeFilter);
+
+        if (!results.facilities || results.facilities.length === 0) {
+          setMessage('searchMessage', 'No facilities found near this postal code.', 'error');
+          resultsContainer.style.display = 'none';
+          emptyState.style.display = 'block';
+          return;
+        }
+
+        // Update summary
+        const typeText = typeFilter === 'gym' ? 'Gyms' : typeFilter === 'track' ? 'Running Tracks' : 'Gyms & Tracks';
+        resultsSummary.innerHTML = `
+          <strong>${results.count} ${typeText}</strong> near Postal Code ${postalCode}
+          (Sorted by distance from coordinates)
+        `;
+
+        // Clear and update grid
+        resultsGrid.innerHTML = '';
+        results.facilities.forEach(facility => {
+          const card = document.createElement('div');
+          card.className = 'facility-card';
+          const typeLabel = facility.type === 'gym' ? '🏋️ Gym' : '🏃 Track';
+          card.innerHTML = `
+            <div class="facility-type ${facility.type}">${typeLabel}</div>
+            <h3 class="facility-name">${facility.name}</h3>
+            <div class="facility-detail">
+              <span class="facility-distance">${facility.distance_km} km</span>
+            </div>
+            <div class="facility-detail">${facility.address}</div>
+            <div class="facility-fee ${facility.fee}">${facility.fee === 'free' ? '✓ Free' : 'Paid'}</div>
+          `;
+          resultsGrid.appendChild(card);
+
+          // Add marker to map
+          addMarker(facility);
+        });
+
+        // Show results
+        resultsContainer.style.display = 'block';
+        emptyState.style.display = 'none';
+        setMessage('searchMessage', 'Search complete!', 'success');
+
+        // Fit map to markers
+        if (markers.length > 0) {
+          const group = new L.featureGroup(markers);
+          map.fitBounds(group.getBounds().pad(0.1));
+        }
+
+      } catch (error) {
+        console.error('Search error:', error);
+        setMessage('searchMessage', error.message || 'Search failed', 'error');
+        resultsContainer.style.display = 'none';
+        emptyState.style.display = 'block';
+      } finally {
+        searchBtn.disabled = false;
+      }
+    }
+
+    // Initialize map when page loads
+    window.addEventListener('DOMContentLoaded', () => {
+      initMap();
+    });
+  </script>
+</body>
+</html>

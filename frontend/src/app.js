@@ -21,9 +21,8 @@ function setMessage(id, message, type = 'error') {
 }
 
 async function logout() {
-  await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
   sessionStorage.clear();
-  window.location.href = '/pages/login.html';
+  window.location.href = '/';
 }
 
 async function login() {
