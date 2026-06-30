@@ -6,6 +6,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const facilitiesRoutes = require('./routes/facilities');
 const authController = require('./controllers/authController');
 const adminController = require('./controllers/adminController');
 const { requireSession } = require('./middleware/helpers');
@@ -29,11 +30,12 @@ app.use(session({
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/facilities', facilitiesRoutes);
 
 app.use(express.static(frontendRoot));
 app.get('/', (req, res) => res.redirect('/pages/login.html'));
 
-['login.html', 'signup.html', 'dashboard.html', 'admin.html', 'DailyHabits.html', 'CalorieTracker.html'].forEach((page) => {
+['login.html', 'signup.html', 'dashboard.html', 'admin.html', 'DailyHabits.html', 'CalorieTracker.html', 'gymFinder.html'].forEach((page) => {
   app.get(`/${page}`, (req, res) => res.sendFile(path.join(pagesRoot, page)));
 });
 
