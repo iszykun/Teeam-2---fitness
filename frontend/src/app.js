@@ -40,7 +40,7 @@ async function login() {
     const data = await apiFetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
     if (data.success) {
       sessionStorage.setItem('email', email);
-      window.location.href = '/pages/dashboard.html';
+      window.location.href = '/pages/NutritionTracker.html';
     }
   } catch (error) {
     setMessage('loginMessage', error.message);

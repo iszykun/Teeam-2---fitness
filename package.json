@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node backend/server.js",
-    "test": "node --check backend/server.js"
+    "test": "node tests/calorieLogic.test.js && node --check backend/server.js"
   },
   "keywords": [
     "devops",

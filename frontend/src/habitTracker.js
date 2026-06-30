@@ -439,6 +439,283 @@ function bindCalorieGoalAndFoodHandlers(root, rerender) {
   });
 }
 
+const NUTRITION_STORAGE_KEY = 'nutrition-tracker-state';
+
+function createNutritionState(selectedDateLabel = getDateLabel()) {
+  return {
+    selectedDate: selectedDateLabel,
+    goals: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+    entries: []
+  };
+}
+
+function normalizeNutritionEntries(entries = [], selectedDateLabel = getDateLabel()) {
+  return (Array.isArray(entries) ? entries : []).map((entry) => ({
+    id: entry && entry.id ? entry.id : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    name: String(entry?.name || '').trim(),
+    calories: Number(entry?.calories || 0),
+    protein: Number(entry?.protein || 0),
+    carbs: Number(entry?.carbs || 0),
+    fat: Number(entry?.fat || 0),
+    date: entry?.date || selectedDateLabel
+  }));
+}
+
+function loadNutritionState(defaultDateLabel = getDateLabel()) {
+  try {
+    const storedState = window.localStorage.getItem(NUTRITION_STORAGE_KEY);
+    if (!storedState) return createNutritionState(defaultDateLabel);
+
+    const parsedState = JSON.parse(storedState);
+    const selectedDate = parsedState?.selectedDate || defaultDateLabel;
+    return {
+      selectedDate,
+      goals: {
+        calories: Number(parsedState?.goals?.calories || 0),
+        protein: Number(parsedState?.goals?.protein || 0),
+        carbs: Number(parsedState?.goals?.carbs || 0),
+        fat: Number(parsedState?.goals?.fat || 0)
+      },
+      entries: normalizeNutritionEntries(parsedState?.entries || [], selectedDate)
+    };
+  } catch (error) {
+    console.error('Unable to load nutrition state', error);
+    return createNutritionState(defaultDateLabel);
+  }
+}
+
+function saveNutritionState(state) {
+  window.localStorage.setItem(NUTRITION_STORAGE_KEY, JSON.stringify(state));
+}
+
+function calculateNutritionTotals(entries = []) {
+  return (Array.isArray(entries) ? entries : []).reduce((totals, entry) => ({
+    calories: totals.calories + Number(entry?.calories || 0),
+    protein: totals.protein + Number(entry?.protein || 0),
+    carbs: totals.carbs + Number(entry?.carbs || 0),
+    fat: totals.fat + Number(entry?.fat || 0)
+  }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
+}
+
+function calculateNutritionProgress(totals = {}, goals = {}) {
+  const macroKeys = ['calories', 'protein', 'carbs', 'fat'];
+  return macroKeys.reduce((accumulator, key) => {
+    const current = Number(totals[key] || 0);
+    const goal = Number(goals[key] || 0);
+    const percent = goal > 0 ? Math.min(100, Math.round((current / goal) * 100)) : 0;
+    accumulator[key] = {
+      current,
+      goal,
+      remaining: goal > 0 ? Math.max(goal - current, 0) : 0,
+      percent
+    };
+    return accumulator;
+  }, {});
+}
+
+function renderNutritionTrackerPage() {
+  const root = document.getElementById('nutritionTrackerRoot');
+  if (!root) return;
+
+  const state = loadNutritionState(getDateLabel());
+  const selectedDateLabel = state.selectedDate || getDateLabel();
+  const entries = (state.entries || []).filter((entry) => entry.date === selectedDateLabel);
+  const totals = calculateNutritionTotals(entries);
+  const progress = calculateNutritionProgress(totals, state.goals);
+
+  root.innerHTML = `
+    <section class="tracker-header">
+      <div>
+        <p class="eyebrow">Nutrition tracker</p>
+        <h2>Track your food, macros, and daily targets</h2>
+        <p>Log meals, keep an eye on your daily totals, and stay on top of your nutrition goals.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card span-6">
+        <p class="eyebrow">Add food entry</p>
+        <h3>Record what you ate</h3>
+        <form id="nutritionEntryForm" class="form-stack compact">
+          <div class="field-grid">
+            <label class="field-group">
+              <span>Food name</span>
+              <input type="text" id="nutritionFoodName" placeholder="e.g. Chicken wrap" required>
+            </label>
+            <label class="field-group">
+              <span>Date</span>
+              <input type="date" id="nutritionFoodDate" value="${selectedDateLabel}">
+            </label>
+          </div>
+          <div class="field-grid">
+            <label class="field-group">
+              <span>Calories</span>
+              <input type="number" id="nutritionCalories" min="0" step="1" placeholder="Calories" required>
+            </label>
+            <label class="field-group">
+              <span>Protein (g)</span>
+              <input type="number" id="nutritionProtein" min="0" step="0.1" placeholder="Protein">
+            </label>
+          </div>
+          <div class="field-grid">
+            <label class="field-group">
+              <span>Carbs (g)</span>
+              <input type="number" id="nutritionCarbs" min="0" step="0.1" placeholder="Carbs">
+            </label>
+            <label class="field-group">
+              <span>Fat (g)</span>
+              <input type="number" id="nutritionFat" min="0" step="0.1" placeholder="Fat">
+            </label>
+          </div>
+          <button type="submit">Add food entry</button>
+        </form>
+      </article>
+
+      <article class="card span-6">
+        <p class="eyebrow">Daily goals</p>
+        <h3>Set your macro targets</h3>
+        <form id="nutritionGoalForm" class="form-stack compact">
+          <div class="field-grid">
+            <label class="field-group">
+              <span>Calories goal</span>
+              <input type="number" id="nutritionGoalCalories" min="0" step="1" value="${state.goals.calories || ''}">
+            </label>
+            <label class="field-group">
+              <span>Protein goal (g)</span>
+              <input type="number" id="nutritionGoalProtein" min="0" step="0.1" value="${state.goals.protein || ''}">
+            </label>
+          </div>
+          <div class="field-grid">
+            <label class="field-group">
+              <span>Carbs goal (g)</span>
+              <input type="number" id="nutritionGoalCarbs" min="0" step="0.1" value="${state.goals.carbs || ''}">
+            </label>
+            <label class="field-group">
+              <span>Fat goal (g)</span>
+              <input type="number" id="nutritionGoalFat" min="0" step="0.1" value="${state.goals.fat || ''}">
+            </label>
+          </div>
+          <button type="submit">Save goals</button>
+        </form>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="card span-12">
+        <div class="nutrition-summary-grid">
+          <div class="summary-pill"><strong>Calories</strong><span>${totals.calories} / ${progress.calories.goal || 0}</span></div>
+          <div class="summary-pill"><strong>Protein</strong><span>${totals.protein} / ${progress.protein.goal || 0} g</span></div>
+          <div class="summary-pill"><strong>Carbs</strong><span>${totals.carbs} / ${progress.carbs.goal || 0} g</span></div>
+          <div class="summary-pill"><strong>Fat</strong><span>${totals.fat} / ${progress.fat.goal || 0} g</span></div>
+        </div>
+        <div class="macro-progress-list">
+          ${['calories', 'protein', 'carbs', 'fat'].map((key) => `
+            <div class="macro-progress-card">
+              <div class="macro-progress-head">
+                <strong>${key.charAt(0).toUpperCase() + key.slice(1)}</strong>
+                <span>${progress[key].current} / ${progress[key].goal || 0}${key === 'calories' ? '' : ' g'}</span>
+              </div>
+              <div class="progress-bar" aria-label="${key} progress">
+                <span style="width:${progress[key].percent}%"></span>
+              </div>
+              <small>${progress[key].goal > 0 ? `${progress[key].remaining} remaining` : 'Set a goal to track progress'}</small>
+            </div>
+          `).join('')}
+        </div>
+      </article>
+    </section>
+
+    <section class="card">
+      <div class="tracker-header">
+        <div>
+          <p class="eyebrow">Today’s entries</p>
+          <h3>${new Date(selectedDateLabel).toLocaleDateString('en', { month: 'long', day: 'numeric' })}</h3>
+        </div>
+        <label class="field-group" style="min-width: 220px; margin:0;">
+          <span>View day</span>
+          <input type="date" id="nutritionViewDate" value="${selectedDateLabel}">
+        </label>
+      </div>
+      <ul class="food-list">
+        ${entries.length ? entries.map((entry) => `
+          <li class="food-item">
+            <div>
+              <strong>${entry.name}</strong>
+              <small>${entry.calories} kcal • ${entry.protein}g protein • ${entry.carbs}g carbs • ${entry.fat}g fat</small>
+            </div>
+            <button class="secondary-button delete-nutrition-entry" type="button" data-entry-id="${entry.id}">Delete</button>
+          </li>
+        `).join('') : '<li class="empty-state">No foods logged for this day yet.</li>'}
+      </ul>
+    </section>
+  `;
+
+  const entryForm = root.querySelector('#nutritionEntryForm');
+  if (entryForm) {
+    entryForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const nextState = loadNutritionState();
+      const dateValue = root.querySelector('#nutritionFoodDate').value || getDateLabel();
+      const foodName = root.querySelector('#nutritionFoodName').value.trim();
+      const calories = Number(root.querySelector('#nutritionCalories').value || 0);
+      const protein = Number(root.querySelector('#nutritionProtein').value || 0);
+      const carbs = Number(root.querySelector('#nutritionCarbs').value || 0);
+      const fat = Number(root.querySelector('#nutritionFat').value || 0);
+
+      if (!foodName) return;
+
+      nextState.selectedDate = dateValue;
+      nextState.entries.push({
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name: foodName,
+        calories,
+        protein,
+        carbs,
+        fat,
+        date: dateValue
+      });
+      saveNutritionState(nextState);
+      renderNutritionTrackerPage();
+    });
+  }
+
+  const goalForm = root.querySelector('#nutritionGoalForm');
+  if (goalForm) {
+    goalForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const nextState = loadNutritionState();
+      nextState.goals = {
+        calories: Number(root.querySelector('#nutritionGoalCalories').value || 0),
+        protein: Number(root.querySelector('#nutritionGoalProtein').value || 0),
+        carbs: Number(root.querySelector('#nutritionGoalCarbs').value || 0),
+        fat: Number(root.querySelector('#nutritionGoalFat').value || 0)
+      };
+      saveNutritionState(nextState);
+      renderNutritionTrackerPage();
+    });
+  }
+
+  const viewDateInput = root.querySelector('#nutritionViewDate');
+  if (viewDateInput) {
+    viewDateInput.addEventListener('change', (event) => {
+      const nextState = loadNutritionState();
+      nextState.selectedDate = event.target.value || getDateLabel();
+      saveNutritionState(nextState);
+      renderNutritionTrackerPage();
+    });
+  }
+
+  const deleteButtons = root.querySelectorAll('.delete-nutrition-entry');
+  deleteButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextState = loadNutritionState();
+      nextState.entries = nextState.entries.filter((entry) => entry.id !== button.getAttribute('data-entry-id'));
+      saveNutritionState(nextState);
+      renderNutritionTrackerPage();
+    });
+  });
+}
+
 function renderCalorieTrackerPage() {
   const root = document.getElementById('calorieTrackerRoot');
   if (!root) return;
@@ -561,10 +838,13 @@ function renderCalorieTrackerPage() {
 function initHabitTracker() {
   const root = document.getElementById('habitTrackerRoot');
   const calorieRoot = document.getElementById('calorieTrackerRoot');
+  const nutritionRoot = document.getElementById('nutritionTrackerRoot');
   if (root) {
     renderHabitTracker();
   } else if (calorieRoot) {
     renderCalorieTrackerPage();
+  } else if (nutritionRoot) {
+    renderNutritionTrackerPage();
   }
 }
 
@@ -578,6 +858,12 @@ if (typeof module !== 'undefined' && module.exports) {
     getRankFromPercentage,
     calculateRecommendedCalories,
     calculateProgressSummary,
-    getCalendarStatus
+    getCalendarStatus,
+    createNutritionState,
+    loadNutritionState,
+    saveNutritionState,
+    calculateNutritionTotals,
+    calculateNutritionProgress,
+    normalizeNutritionEntries
   };
 }

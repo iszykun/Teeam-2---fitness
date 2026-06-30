@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nutrition Tracker</title>
+  <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="/assets/images/rp-logo.png" alt="RP logo">
+        <div><strong>RP Fitness</strong><span>Nutrition Tracker</span></div>
+      </div>
+      <nav class="nav-links">
+        <a class="active" href="/pages/NutritionTracker.html">Nutrition Tracker</a>
+        <button onclick="logout()">Logout</button>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <span class="eyebrow">Daily nutrition</span>
+          <h1>Nutrition Tracker</h1>
+          <p>Log meals, track your macros, and reach your daily targets.</p>
+        </div>
+      </header>
+      <div id="nutritionTrackerRoot"></div>
+    </main>
+  </div>
+  <script src="/src/app.js"></script>
+  <script src="/src/habitTracker.js"></script>
+</body>
+</html>

@@ -31,9 +31,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.use(express.static(frontendRoot));
-app.get('/', (req, res) => res.redirect('/pages/login.html'));
+app.get('/', (req, res) => res.redirect('/pages/NutritionTracker.html'));
 
-['login.html', 'signup.html', 'dashboard.html', 'admin.html', 'DailyHabits.html', 'CalorieTracker.html'].forEach((page) => {
+['login.html', 'signup.html', 'dashboard.html', 'admin.html', 'DailyHabits.html', 'CalorieTracker.html', 'NutritionTracker.html'].forEach((page) => {
   app.get(`/${page}`, (req, res) => res.sendFile(path.join(pagesRoot, page)));
 });
 

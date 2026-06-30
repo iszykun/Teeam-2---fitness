@@ -1,243 +1,28 @@
-# Team-2 Daily Habit Checklist
+# Nutrition Tracker
 
-A web-based application for Republic Polytechnic students to track daily calorie intake and manage personal habits. Students can log food items, monitor their calorie consumption, and complete daily habit checklists. Administrators can manage users and monitor student activity.
+A simple nutrition-focused web app for logging food entries and tracking daily macros. Users can add meals with calories, protein, carbs, and fat, then review daily totals, set macro goals, and watch their progress update instantly.
 
-This project demonstrates modern DevOps practices including:
+## Features
 
-* Git & GitHub Collaboration (Branching, Pull Requests)
-* Docker Containerization
-* Jenkins CI/CD Pipeline
-* Ansible Deployment Automation
+- Add food entries with name, calories, protein, carbs, fat, and date
+- Review daily totals for calories, protein, carbs, and fat
+- Set daily macro goals and see progress with clear progress bars
+- Save nutrition data locally so it stays available after refresh
 
-> **Note:** The application uses JSON files for persistent storage to keep data transparent and easily inspectable for grading purposes.
+## Local setup
 
----
-
-## 🚀 Features
-
-### Student / User Features
-
-* ✅ Registration with RP email validation (`@myrp.edu.sg`)
-* 🔐 Secure login/logout using server-side sessions
-* 👤 View personal profile and account details
-* 🍔 Log daily food items with calorie counts
-* 📊 View total calorie intake summary
-* ✔️ Track daily habits through a checklist system
-* 📅 Monitor monthly progress
-* 💾 Automatic progress saving
-* 🎯 Set and edit daily calorie goals for any day
-* 📈 View daily calorie progress with goal, food eaten, and remaining calories
-* 🧮 Use a BMI calculator with age, gender, height, weight, and exercise level
-* 💡 Get a recommended daily calorie intake suggestion
-* 🗓️ See calendar status colors for calorie goal performance
-
-### Habit Tracking Features
-
-The Daily Habit Checklist allows users to track two habits daily:
-
-* Calorie Goal Completion
-* Fitness Workout Completion
-
-The Daily Goals experience now also supports:
-
-* Daily calorie goals saved to local storage
-* Daily calorie progress summary with remaining calories
-* Calendar day colors for calorie goal status
-* Food entries that feed into the daily calorie progress view
-
-Users can monitor their consistency through a ranking system:
-
-| Completion Percentage | Rank   |
-| --------------------- | ------ |
-| 0% - 25%              | Iron   |
-| 26% - 50%             | Bronze |
-| 51% - 75%             | Silver |
-| 76% - 100%            | Gold   |
-
-### Calendar Color Guide
-
-| Status | Meaning |
-| ------ | ------- |
-| Green | Goal reached |
-| Red | Over or under goal |
-| Grey | No goal set |
-
-### Admin Features
-
-* 👥 View all registered users
-* 📈 View detailed user statistics
-* 🗑️ Delete user accounts
-* 📊 Monitor user activity metrics
-
----
-
-## 🛠️ Technologies Used
-
-| Area             | Technologies          |
-| ---------------- | --------------------- |
-| Backend          | Node.js, Express.js   |
-| Frontend         | HTML, CSS, JavaScript |
-| Storage          | JSON Files            |
-| Authentication   | Express Session       |
-| Version Control  | Git, GitHub           |
-| Containerization | Docker                |
-| CI/CD            | Jenkins               |
-| Automation       | Ansible               |
-
----
-
-## 🏗️ System Architecture
-
-```text
-Users (Browser)
-        |
-        v
-Frontend (HTML/CSS/JavaScript)
-        |
-        v
-Express.js Backend Server
-        |
-        +----------------------+
-        |                      |
-        v                      v
-Authentication Routes     User/Admin Routes
-        |                      |
-        +----------+-----------+
-                   |
-                   v
-          JSON File Storage
-              (users.json)
-
-GitHub Repository
-        |
-        v
-Jenkins Pipeline
-        |
-        v
-Docker Container
-        |
-        v
-Ansible Deployment
-```
-
----
-
-## 📁 Repository Structure
-
-```text
-Team-2/
-├── .dockerignore
-├── .env.example
-├── .git/
-├── .gitignore
-├── backend/
-│   ├── controllers/
-│   ├── data/
-│   ├── middleware/
-│   ├── models/
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── routes/
-│   └── server.js
-├── docker/
-│   ├── Dockerfile.backend
-│   └── Dockerfile.frontend
-├── docker-compose.yml
-├── Dockerfile
-├── frontend/
-│   ├── assets/
-│   ├── pages/
-│   ├── public/
-│   ├── src/
-│   └── styles/
-├── index.js
-├── package-lock.json
-├── package.json
-├── README.md
-└── Team-2/  (empty)
-```
-
----
-
-## ⚙️ Local Setup
-
-### 1. Clone the Repository
-
-```bash
-git clone <repository-url>
-cd Team-2
-```
-
-### 2. Install Dependencies
-
-```bash
-cd backend
-npm install
-```
-
-### 3. Start the Application
-
-From the backend folder:
-
-```bash
-npm start
-```
-
-Or from the project root:
-
-```bash
-npm start
-```
-
-### 4. Access the Application
-
-Open your browser and navigate to:
-
-```text
-http://localhost:3000/pages/login.html
-```
-
-### 5. Use the New Features
-
-* Open the Dashboard and select the Calorie Tracker card to visit the new calorie page.
-* Use Daily Habits to set a daily calorie goal, save it, and review your progress.
-* Use the BMI calculator and recommended intake helper on the calorie tracker page.
-* Log meals to update your daily food calories and see them reflected in the daily progress summary.
-
----
-
-## 👤 Demo Accounts
-
-### Admin Login
-
-```text
-Username: admin
-Password: admin
-```
-
-### Student Accounts
-
-Students must register using the following email format:
-
-```text
-25000000@myrp.edu.sg
-```
-
----
-
-## 🐳 Docker Setup
-
-Build and run the application using Docker Compose:
-
-```bash
-docker compose up --build
-```
-
-Access the application at:
-
-```text
-http://localhost:3000/pages/login.html
-```
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the app:
+   ```bash
+   npm start
+   ```
+3. Open the app at:
+   ```text
+   http://localhost:3000/
+   ```
 
 The Docker Compose configuration mounts `backend/data` to ensure JSON data persists outside the container.
 
