@@ -225,14 +225,13 @@ function renderHabitTracker() {
   const selectedEntry = getCurrentDayEntry(state, selectedDateLabel);
   const progress = calculateHabitProgress(Object.values(state.days), todayDateLabel);
   const rankMeta = getRankMeta(progress.percentage);
-  const summary = calculateProgressSummary({ goal: selectedEntry.calorieGoal, foodCalories: selectedEntry.foodCalories });
 
   root.innerHTML = `
     <section class="tracker-header">
       <div>
         <p class="eyebrow">Daily habit checklist</p>
         <h2>Build your streak for the month</h2>
-        <p>Track your calorie goal and workout each day. Every day starts fresh and contributes to your monthly progress.</p>
+        <p>Track your workout and daily habits. Every day starts fresh and contributes to your monthly progress.</p>
       </div>
       <div class="tracker-badge">
         <span>${rankMeta.icon}</span>
@@ -271,6 +270,192 @@ function renderHabitTracker() {
           `).join('')}
         </div>
       </article>
+    </section>
+
+    <section class="card tracker-calendar-card">
+      <div class="calendar-header">
+        <div>
+          <p class="eyebrow">Month calendar</p>
+          <h3>${new Date(todayDateLabel).toLocaleDateString('en', { month: 'long', year: 'numeric' })}</h3>
+        </div>
+        <div class="calendar-legend">
+          <span><i class="legend-dot green"></i> Goal reached</span>
+          <span><i class="legend-dot red"></i> Over or under goal</span>
+          <span><i class="legend-dot grey"></i> No goal set</span>
+        </div>
+      </div>
+      <div class="tracker-calendar">
+        ${Object.values(state.days).map((entry) => {
+          const status = getDayStatus(entry);
+          const isToday = entry.date === todayDateLabel;
+          return `
+            <div class="day-cell ${status} ${isToday ? 'today' : ''}">
+              <span>${new Date(entry.date).getDate()}</span>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </section>
+  `;
+
+  const checkboxes = root.querySelectorAll('input[data-habit-key]');
+  checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener('change', (event) => {
+      const habitKey = event.target.getAttribute('data-habit-key');
+      const nextState = loadHabitState();
+      const currentDateLabel = loadSelectedDateLabel(getDateLabel());
+      const entry = getCurrentDayEntry(nextState, currentDateLabel);
+      entry.habits[habitKey] = event.target.checked;
+      nextState.days[currentDateLabel.slice(-2)] = entry;
+      saveHabitState(nextState);
+      renderHabitTracker();
+    });
+  });
+
+  bindCalorieGoalAndFoodHandlers(root, renderHabitTracker);
+}
+
+function bindCalorieGoalAndFoodHandlers(root, rerender) {
+  const goalDateInput = root.querySelector('#goalDate');
+  if (goalDateInput) {
+    goalDateInput.addEventListener('change', (event) => {
+      saveSelectedDateLabel(event.target.value || getDateLabel());
+      rerender();
+    });
+  }
+
+  const goalForm = root.querySelector('#calorieGoalForm');
+  if (goalForm) {
+    goalForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const nextState = loadHabitState();
+      const entryDate = root.querySelector('#goalDate').value || getDateLabel();
+      const entry = getCurrentDayEntry(nextState, entryDate);
+      const goalValue = root.querySelector('#calorieGoalInput').value;
+      entry.calorieGoal = goalValue ? Number(goalValue) : null;
+      nextState.days[entryDate.slice(-2)] = entry;
+      saveSelectedDateLabel(entryDate);
+      saveHabitState(nextState);
+      rerender();
+    });
+  }
+
+  const clearGoalButton = root.querySelector('#clearGoalButton');
+  if (clearGoalButton) {
+    clearGoalButton.addEventListener('click', () => {
+      const nextState = loadHabitState();
+      const entryDate = root.querySelector('#goalDate').value || getDateLabel();
+      const entry = getCurrentDayEntry(nextState, entryDate);
+      entry.calorieGoal = null;
+      nextState.days[entryDate.slice(-2)] = entry;
+      saveSelectedDateLabel(entryDate);
+      saveHabitState(nextState);
+      rerender();
+    });
+  }
+
+  const calculateButton = root.querySelector('#calculateRecommendationButton');
+  const applyButton = root.querySelector('#applyRecommendationButton');
+  const recommendationOutput = root.querySelector('#recommendationOutput');
+  const helperInputs = {
+    age: root.querySelector('#helperAge'),
+    gender: root.querySelector('#helperGender'),
+    height: root.querySelector('#helperHeight'),
+    weight: root.querySelector('#helperWeight'),
+    exerciseLevel: root.querySelector('#helperExerciseLevel')
+  };
+
+  if (calculateButton && recommendationOutput) {
+    calculateButton.addEventListener('click', () => {
+      const recommendedCalories = calculateRecommendedCalories({
+        age: helperInputs.age.value,
+        gender: helperInputs.gender.value,
+        height: helperInputs.height.value,
+        weight: helperInputs.weight.value,
+        exerciseLevel: helperInputs.exerciseLevel.value
+      });
+
+      if (recommendedCalories) {
+        recommendationOutput.innerHTML = `<strong>${recommendedCalories} kcal</strong><span>Recommended daily calorie intake based on your details.</span>`;
+        if (applyButton) applyButton.disabled = false;
+      } else {
+        recommendationOutput.innerHTML = '<span>Enter valid details to receive a recommendation.</span>';
+        if (applyButton) applyButton.disabled = true;
+      }
+    });
+  }
+
+  if (applyButton && recommendationOutput) {
+    applyButton.addEventListener('click', () => {
+      const recommendationValue = recommendationOutput.querySelector('strong')?.textContent?.replace(/\D/g, '');
+      if (!recommendationValue) return;
+      const calorieInput = root.querySelector('#calorieGoalInput');
+      if (calorieInput) calorieInput.value = recommendationValue;
+    });
+  }
+
+  const foodForm = root.querySelector('#foodLogForm') || root.querySelector('#trackerFoodForm');
+  if (foodForm) {
+    foodForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const nextState = loadHabitState();
+      const entryDate = root.querySelector('#foodDate')?.value || root.querySelector('#trackerFoodDate')?.value || getDateLabel();
+      const entry = getCurrentDayEntry(nextState, entryDate);
+      const foodName = (root.querySelector('#foodName')?.value || root.querySelector('#trackerFoodName')?.value || '').trim();
+      const foodCaloriesValue = root.querySelector('#foodCaloriesInput')?.value || root.querySelector('#trackerFoodCalories')?.value;
+
+      if (!foodName || !foodCaloriesValue) return;
+
+      entry.foodEntries.push({ name: foodName, calories: Number(foodCaloriesValue), date: entryDate });
+      entry.foodCalories = entry.foodEntries.reduce((total, foodEntry) => total + Number(foodEntry.calories || 0), 0);
+      nextState.days[entryDate.slice(-2)] = entry;
+      saveSelectedDateLabel(entryDate);
+      saveHabitState(nextState);
+      rerender();
+    });
+  }
+
+  const trackerFoodDateInput = root.querySelector('#trackerFoodDate') || root.querySelector('#foodDate');
+  if (trackerFoodDateInput) {
+    trackerFoodDateInput.addEventListener('change', (event) => {
+      saveSelectedDateLabel(event.target.value || getDateLabel());
+      rerender();
+    });
+  }
+
+  const deleteButtons = root.querySelectorAll('.delete-entry');
+  deleteButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextState = loadHabitState();
+      const entryDate = button.getAttribute('data-food-date') || getDateLabel();
+      const entry = getCurrentDayEntry(nextState, entryDate);
+      entry.foodEntries = entry.foodEntries.filter((foodEntry) => foodEntry.name !== button.getAttribute('data-food-name'));
+      entry.foodCalories = entry.foodEntries.reduce((total, foodEntry) => total + Number(foodEntry.calories || 0), 0);
+      nextState.days[entryDate.slice(-2)] = entry;
+      saveSelectedDateLabel(entryDate);
+      saveHabitState(nextState);
+      rerender();
+    });
+  });
+}
+
+function renderCalorieTrackerPage() {
+  const root = document.getElementById('calorieTrackerRoot');
+  if (!root) return;
+
+  const state = loadHabitState();
+  const todayDateLabel = getDateLabel();
+  const selectedDateLabel = loadSelectedDateLabel(todayDateLabel);
+  const selectedEntry = getCurrentDayEntry(state, selectedDateLabel);
+  const summary = calculateProgressSummary({ goal: selectedEntry.calorieGoal, foodCalories: selectedEntry.foodCalories });
+
+  root.innerHTML = `
+    <section class="tracker-header">
+      <div>
+        <p class="eyebrow">Calorie tracker</p>
+        <h2>Manage your BMI, calories, and daily targets</h2>
+        <p>Use BMI insights and food logging to stay on track.</p>
+      </div>
     </section>
 
     <section class="grid">
@@ -327,6 +512,7 @@ function renderHabitTracker() {
           <div class="recommendation-output" id="recommendationOutput">Enter your details to see a recommended calorie intake.</div>
         </div>
       </article>
+
       <article class="card span-6">
         <p class="eyebrow">Daily calorie progress</p>
         <h3>${new Date(selectedDateLabel).toLocaleDateString('en', { month: 'long', day: 'numeric' })} overview</h3>
@@ -336,252 +522,6 @@ function renderHabitTracker() {
           <div class="summary-pill"><strong>Remaining</strong><span>${summary.goal ? `${summary.remaining ?? 0} kcal` : '—'}</span></div>
           <div class="summary-pill ${summary.status}"><strong>Status</strong><span>${summary.status === 'reached' ? 'Goal reached' : summary.status === 'over' ? `Over by ${summary.overBy} kcal` : summary.status === 'under' ? `Under by ${summary.remaining} kcal` : 'Set a goal to start tracking'}</span></div>
         </div>
-        <form id="foodLogForm" class="form-stack compact">
-          <div class="field-grid">
-            <label class="field-group">
-              <span>Food name</span>
-              <input type="text" id="foodName" placeholder="e.g. Chicken rice" required>
-            </label>
-            <label class="field-group">
-              <span>Calories</span>
-              <input type="number" id="foodCaloriesInput" min="0" step="10" placeholder="Calories" required>
-            </label>
-            <label class="field-group">
-              <span>Date</span>
-              <input type="date" id="foodDate" value="${selectedDateLabel}">
-            </label>
-          </div>
-          <button type="submit">Log food entry</button>
-        </form>
-        <ul class="food-list">
-          ${selectedEntry.foodEntries.length ? selectedEntry.foodEntries.map((foodEntry) => `
-            <li class="food-item">
-              <div>
-                <strong>${foodEntry.name}</strong>
-                <small>${foodEntry.calories} calories</small>
-              </div>
-              <button class="secondary-button delete-entry" type="button" data-food-name="${foodEntry.name}" data-food-date="${foodEntry.date}">Remove</button>
-            </li>
-          `).join('') : '<li class="empty-state">No food logged for this day yet.</li>'}
-        </ul>
-      </article>
-    </section>
-
-    <section class="card tracker-calendar-card">
-      <div class="calendar-header">
-        <div>
-          <p class="eyebrow">Month calendar</p>
-          <h3>${new Date(todayDateLabel).toLocaleDateString('en', { month: 'long', year: 'numeric' })}</h3>
-        </div>
-        <div class="calendar-legend">
-          <span><i class="legend-dot green"></i> Goal reached</span>
-          <span><i class="legend-dot red"></i> Over or under goal</span>
-          <span><i class="legend-dot grey"></i> No goal set</span>
-        </div>
-      </div>
-      <div class="tracker-calendar">
-        ${Object.values(state.days).map((entry) => {
-          const status = getDayStatus(entry);
-          const isToday = entry.date === todayDateLabel;
-          return `
-            <div class="day-cell ${status} ${isToday ? 'today' : ''}">
-              <span>${new Date(entry.date).getDate()}</span>
-            </div>
-          `;
-        }).join('')}
-      </div>
-    </section>
-  `;
-
-  const checkboxes = root.querySelectorAll('input[data-habit-key]');
-  checkboxes.forEach((checkbox) => {
-    checkbox.addEventListener('change', (event) => {
-      const habitKey = event.target.getAttribute('data-habit-key');
-      const nextState = loadHabitState();
-      const currentDateLabel = loadSelectedDateLabel(getDateLabel());
-      const entry = getCurrentDayEntry(nextState, currentDateLabel);
-      entry.habits[habitKey] = event.target.checked;
-      nextState.days[currentDateLabel.slice(-2)] = entry;
-      saveHabitState(nextState);
-      renderHabitTracker();
-    });
-  });
-
-  const goalDateInput = root.querySelector('#goalDate');
-  if (goalDateInput) {
-    goalDateInput.addEventListener('change', (event) => {
-      saveSelectedDateLabel(event.target.value || getDateLabel());
-      renderHabitTracker();
-    });
-  }
-
-  const goalForm = root.querySelector('#calorieGoalForm');
-  if (goalForm) {
-    goalForm.addEventListener('submit', (event) => {
-      event.preventDefault();
-      const nextState = loadHabitState();
-      const entryDate = root.querySelector('#goalDate').value || getDateLabel();
-      const entry = getCurrentDayEntry(nextState, entryDate);
-      const goalValue = root.querySelector('#calorieGoalInput').value;
-      entry.calorieGoal = goalValue ? Number(goalValue) : null;
-      nextState.days[entryDate.slice(-2)] = entry;
-      saveSelectedDateLabel(entryDate);
-      saveHabitState(nextState);
-      renderHabitTracker();
-    });
-  }
-
-  const clearGoalButton = root.querySelector('#clearGoalButton');
-  if (clearGoalButton) {
-    clearGoalButton.addEventListener('click', () => {
-      const nextState = loadHabitState();
-      const entryDate = root.querySelector('#goalDate').value || getDateLabel();
-      const entry = getCurrentDayEntry(nextState, entryDate);
-      entry.calorieGoal = null;
-      nextState.days[entryDate.slice(-2)] = entry;
-      saveSelectedDateLabel(entryDate);
-      saveHabitState(nextState);
-      renderHabitTracker();
-    });
-  }
-
-  const calculateButton = root.querySelector('#calculateRecommendationButton');
-  const applyButton = root.querySelector('#applyRecommendationButton');
-  const recommendationOutput = root.querySelector('#recommendationOutput');
-  const helperInputs = {
-    age: root.querySelector('#helperAge'),
-    gender: root.querySelector('#helperGender'),
-    height: root.querySelector('#helperHeight'),
-    weight: root.querySelector('#helperWeight'),
-    exerciseLevel: root.querySelector('#helperExerciseLevel')
-  };
-
-  if (calculateButton && recommendationOutput) {
-    calculateButton.addEventListener('click', () => {
-      const recommendedCalories = calculateRecommendedCalories({
-        age: helperInputs.age.value,
-        gender: helperInputs.gender.value,
-        height: helperInputs.height.value,
-        weight: helperInputs.weight.value,
-        exerciseLevel: helperInputs.exerciseLevel.value
-      });
-
-      if (recommendedCalories) {
-        recommendationOutput.innerHTML = `<strong>${recommendedCalories} kcal</strong><span>Recommended daily calorie intake based on your details.</span>`;
-        if (applyButton) applyButton.disabled = false;
-      } else {
-        recommendationOutput.innerHTML = '<span>Enter valid details to receive a recommendation.</span>';
-        if (applyButton) applyButton.disabled = true;
-      }
-    });
-  }
-
-  if (applyButton && recommendationOutput) {
-    applyButton.addEventListener('click', () => {
-      const recommendationValue = recommendationOutput.querySelector('strong')?.textContent?.replace(/\D/g, '');
-      if (!recommendationValue) return;
-      const calorieInput = root.querySelector('#calorieGoalInput');
-      if (calorieInput) calorieInput.value = recommendationValue;
-    });
-  }
-
-  const foodForm = root.querySelector('#foodLogForm');
-  if (foodForm) {
-    foodForm.addEventListener('submit', (event) => {
-      event.preventDefault();
-      const nextState = loadHabitState();
-      const entryDate = root.querySelector('#foodDate').value || getDateLabel();
-      const entry = getCurrentDayEntry(nextState, entryDate);
-      const foodName = root.querySelector('#foodName').value.trim();
-      const foodCaloriesValue = root.querySelector('#foodCaloriesInput').value;
-
-      if (!foodName || !foodCaloriesValue) return;
-
-      entry.foodEntries.push({ name: foodName, calories: Number(foodCaloriesValue), date: entryDate });
-      entry.foodCalories = entry.foodEntries.reduce((total, foodEntry) => total + Number(foodEntry.calories || 0), 0);
-      nextState.days[entryDate.slice(-2)] = entry;
-      saveSelectedDateLabel(entryDate);
-      saveHabitState(nextState);
-      renderHabitTracker();
-    });
-  }
-
-  const deleteButtons = root.querySelectorAll('.delete-entry');
-  deleteButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      const nextState = loadHabitState();
-      const entryDate = button.getAttribute('data-food-date') || getDateLabel();
-      const entry = getCurrentDayEntry(nextState, entryDate);
-      entry.foodEntries = entry.foodEntries.filter((foodEntry) => foodEntry.name !== button.getAttribute('data-food-name'));
-      entry.foodCalories = entry.foodEntries.reduce((total, foodEntry) => total + Number(foodEntry.calories || 0), 0);
-      nextState.days[entryDate.slice(-2)] = entry;
-      saveHabitState(nextState);
-      renderHabitTracker();
-    });
-  });
-}
-
-function renderCalorieTrackerPage() {
-  const root = document.getElementById('calorieTrackerRoot');
-  if (!root) return;
-
-  const state = loadHabitState();
-  const todayDateLabel = getDateLabel();
-  const selectedDateLabel = loadSelectedDateLabel(todayDateLabel);
-  const selectedEntry = getCurrentDayEntry(state, selectedDateLabel);
-  const summary = calculateProgressSummary({ goal: selectedEntry.calorieGoal, foodCalories: selectedEntry.foodCalories });
-
-  root.innerHTML = `
-    <section class="tracker-header">
-      <div>
-        <p class="eyebrow">Calorie tracker</p>
-        <h2>Manage your BMI, calories, and daily targets</h2>
-        <p>Use BMI insights and food logging to stay on track.</p>
-      </div>
-    </section>
-
-    <section class="grid">
-      <article class="card span-12">
-        <p class="eyebrow">BMI calculator</p>
-        <h3>Check your current body mass index</h3>
-        <form id="bmiForm" class="form-stack compact">
-          <div class="field-grid">
-            <label class="field-group">
-              <span>Age</span>
-              <input type="number" id="bmiAge" min="1" value="20">
-            </label>
-            <label class="field-group">
-              <span>Gender</span>
-              <select id="bmiGender">
-                <option value="female">Female</option>
-                <option value="male">Male</option>
-              </select>
-            </label>
-            <label class="field-group">
-              <span>Height (cm)</span>
-              <input type="number" id="bmiHeight" min="1" value="165">
-            </label>
-            <label class="field-group">
-              <span>Weight (kg)</span>
-              <input type="number" id="bmiWeight" min="1" value="60">
-            </label>
-            <label class="field-group">
-              <span>Exercise level</span>
-              <select id="bmiExerciseLevel">
-                ${EXERCISE_LEVELS.map((level) => `<option value="${level}">${level}</option>`).join('')}
-              </select>
-            </label>
-          </div>
-          <button type="submit">Calculate BMI</button>
-        </form>
-        <div class="bmi-output" id="bmiOutput">Enter your height and weight to calculate your BMI.</div>
-      </article>
-    </section>
-
-    <section class="grid">
-      <article class="card span-12">
-        <p class="eyebrow">Food calorie tracker</p>
-        <h3>Log food and track calories for today</h3>
         <form id="trackerFoodForm" class="form-stack compact">
           <div class="field-grid">
             <label class="field-group">
@@ -599,12 +539,6 @@ function renderCalorieTrackerPage() {
           </div>
           <button type="submit">Log food entry</button>
         </form>
-        <div class="calorie-summary">
-          <div class="summary-pill"><strong>Goal</strong><span>${summary.goal ? `${summary.goal} kcal` : 'Not set'}</span></div>
-          <div class="summary-pill"><strong>Food eaten</strong><span>${summary.foodCalories} kcal</span></div>
-          <div class="summary-pill"><strong>Remaining</strong><span>${summary.goal ? `${summary.remaining ?? 0} kcal` : '—'}</span></div>
-          <div class="summary-pill ${summary.status}"><strong>Status</strong><span>${summary.status === 'reached' ? 'Goal reached' : summary.status === 'over' ? `Over by ${summary.overBy} kcal` : summary.status === 'under' ? `Under by ${summary.remaining} kcal` : 'Set a goal to start tracking'}</span></div>
-        </div>
         <ul class="food-list">
           ${selectedEntry.foodEntries.length ? selectedEntry.foodEntries.map((foodEntry) => `
             <li class="food-item">
@@ -618,72 +552,10 @@ function renderCalorieTrackerPage() {
         </ul>
       </article>
     </section>
+
   `;
 
-  const bmiForm = root.querySelector('#bmiForm');
-  const bmiOutput = root.querySelector('#bmiOutput');
-  if (bmiForm && bmiOutput) {
-    bmiForm.addEventListener('submit', (event) => {
-      event.preventDefault();
-      const height = Number(root.querySelector('#bmiHeight').value);
-      const weight = Number(root.querySelector('#bmiWeight').value);
-      if (!height || !weight) {
-        bmiOutput.innerHTML = '<span>Enter valid height and weight values.</span>';
-        return;
-      }
-      const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
-      let description = 'Healthy range';
-      if (Number(bmi) < 18.5) description = 'Underweight';
-      else if (Number(bmi) < 25) description = 'Healthy';
-      else if (Number(bmi) < 30) description = 'Overweight';
-      else description = 'Obese';
-      bmiOutput.innerHTML = `<strong>${bmi}</strong><span>${description}</span>`;
-    });
-  }
-
-  const trackerFoodDateInput = root.querySelector('#trackerFoodDate');
-  if (trackerFoodDateInput) {
-    trackerFoodDateInput.addEventListener('change', (event) => {
-      saveSelectedDateLabel(event.target.value || getDateLabel());
-      renderCalorieTrackerPage();
-    });
-  }
-
-  const trackerFoodForm = root.querySelector('#trackerFoodForm');
-  if (trackerFoodForm) {
-    trackerFoodForm.addEventListener('submit', (event) => {
-      event.preventDefault();
-      const nextState = loadHabitState();
-      const entryDate = root.querySelector('#trackerFoodDate').value || getDateLabel();
-      const entry = getCurrentDayEntry(nextState, entryDate);
-      const foodName = root.querySelector('#trackerFoodName').value.trim();
-      const foodCaloriesValue = root.querySelector('#trackerFoodCalories').value;
-
-      if (!foodName || !foodCaloriesValue) return;
-
-      entry.foodEntries.push({ name: foodName, calories: Number(foodCaloriesValue), date: entryDate });
-      entry.foodCalories = entry.foodEntries.reduce((total, foodEntry) => total + Number(foodEntry.calories || 0), 0);
-      nextState.days[entryDate.slice(-2)] = entry;
-      saveSelectedDateLabel(entryDate);
-      saveHabitState(nextState);
-      renderCalorieTrackerPage();
-    });
-  }
-
-  const deleteButtons = root.querySelectorAll('.delete-entry');
-  deleteButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      const nextState = loadHabitState();
-      const entryDate = button.getAttribute('data-food-date') || getDateLabel();
-      const entry = getCurrentDayEntry(nextState, entryDate);
-      entry.foodEntries = entry.foodEntries.filter((foodEntry) => foodEntry.name !== button.getAttribute('data-food-name'));
-      entry.foodCalories = entry.foodEntries.reduce((total, foodEntry) => total + Number(foodEntry.calories || 0), 0);
-      nextState.days[entryDate.slice(-2)] = entry;
-      saveSelectedDateLabel(entryDate);
-      saveHabitState(nextState);
-      renderCalorieTrackerPage();
-    });
-  });
+  bindCalorieGoalAndFoodHandlers(root, renderCalorieTrackerPage);
 }
 
 function initHabitTracker() {
