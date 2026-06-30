@@ -1,25 +1,26 @@
 // Frontend service for facilities API and OneMap integration
 
 /**
- * Resolve a Singapore postal code to coordinates using OneMap API
+ * Resolve a Singapore postal code to coordinates using backend API
  * @param {string} postalCode - Singapore postal code (e.g., "738600")
  * @returns {Promise<{lat: number, lng: number}>} Coordinates
  */
 async function resolvePostalCode(postalCode) {
   try {
-    const response = await fetch(`https://www.onemap.sg/api/common/elastic/search?queryString=${postalCode}&returnGeom=Y&getAddrDetails=Y`);
-    if (!response.ok) throw new Error('OneMap API error');
-    
+    const response = await fetch(`/api/facilities/resolve-postal/${postalCode}`, {
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
     const data = await response.json();
-    if (!data.results || data.results.length === 0) {
-      throw new Error('Postal code not found');
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Failed to resolve postal code');
     }
 
-    const result = data.results[0];
     return {
-      lat: parseFloat(result.LATITUDE),
-      lng: parseFloat(result.LONGITUDE),
-      address: result.ADDRESS || 'Singapore'
+      lat: data.lat,
+      lng: data.lng,
+      address: data.address || 'Singapore'
     };
   } catch (error) {
     console.error('Error resolving postal code:', error);
