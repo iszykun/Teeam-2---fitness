@@ -30,6 +30,12 @@ This project demonstrates modern DevOps practices including:
 * 🧮 Use a BMI calculator with age, gender, height, weight, and exercise level
 * 💡 Get a recommended daily calorie intake suggestion
 * 🗓️ See calendar status colors for calorie goal performance
+* 🏋️ Find nearby public gyms and running tracks by postal code using Gym & Track Finder
+  - Search by Singapore postal code
+  - Filter by gym, running track, or both
+  - View results sorted by distance (nearest first)
+  - See facilities on an interactive map with distance information
+  - Check facility details: name, type, distance, and fee information
 
 ### Habit Tracking Features
 
@@ -209,6 +215,11 @@ http://localhost:3000/pages/login.html
 * Use Daily Habits to set a daily calorie goal, save it, and review your progress.
 * Use the BMI calculator and recommended intake helper on the calorie tracker page.
 * Log meals to update your daily food calories and see them reflected in the daily progress summary.
+* Use Gym & Track Finder to search for public ActiveSG facilities near your postal code
+  - Enter any Singapore postal code to find nearby gyms and running tracks
+  - Filter by facility type if needed
+  - View all results on an interactive map with distance markers
+  - Facility data comes from the SportSG dataset; type/public/fee are curated values
 
 ---
 
