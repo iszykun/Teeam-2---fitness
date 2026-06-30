@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'rp-fitness-dev-secret';
 const frontendRoot = path.join(__dirname, '..', 'frontend');
 const pagesRoot = path.join(frontendRoot, 'pages');
+const redirectToNutrition = (req, res) => res.redirect('/pages/NutritionTracker.html');
 
 app.use(cors({ origin: process.env.CORS_ORIGIN || true, credentials: true }));
 app.use(express.json());
@@ -30,12 +31,22 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 
-app.use(express.static(frontendRoot));
-app.get('/', (req, res) => res.redirect('/pages/NutritionTracker.html'));
+app.get('/', redirectToNutrition);
+app.get('/login.html', redirectToNutrition);
+app.get('/signup.html', redirectToNutrition);
+app.get('/dashboard.html', redirectToNutrition);
+app.get('/admin.html', redirectToNutrition);
+app.get('/DailyHabits.html', redirectToNutrition);
+app.get('/CalorieTracker.html', redirectToNutrition);
+app.get('/pages/login.html', redirectToNutrition);
+app.get('/pages/signup.html', redirectToNutrition);
+app.get('/pages/dashboard.html', redirectToNutrition);
+app.get('/pages/admin.html', redirectToNutrition);
+app.get('/pages/DailyHabits.html', redirectToNutrition);
+app.get('/pages/CalorieTracker.html', redirectToNutrition);
+app.get('/pages/NutritionTracker.html', (req, res) => res.sendFile(path.join(pagesRoot, 'NutritionTracker.html')));
 
-['login.html', 'signup.html', 'dashboard.html', 'admin.html', 'DailyHabits.html', 'CalorieTracker.html', 'NutritionTracker.html'].forEach((page) => {
-  app.get(`/${page}`, (req, res) => res.sendFile(path.join(pagesRoot, page)));
-});
+app.use(express.static(frontendRoot));
 
 app.post('/signup', authController.signup);
 app.post('/login', authController.login);
@@ -55,5 +66,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`RP Fitness running at http://localhost:${PORT}/pages/login.html`);
+  console.log(`RP Fitness running at http://localhost:${PORT}/pages/NutritionTracker.html`);
 });
